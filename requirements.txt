@@ -1,0 +1,20 @@
+# 医学影像报告模板管理系统 —— Python 依赖清单
+# 适用环境：Python 3.10 ~ 3.14（已在本机 Python 3.14.8 实测通过）
+# 安装命令：pip install -r requirements.txt
+#
+# 说明：以下版本为 2026-10 适配 Python 3.14 的稳定组合，
+#       其中 openai 3.x 会自动安装其传输层 httpx2，无需手动声明。
+
+# ---------- Web 框架与 ASGI 服务器 ----------
+fastapi==0.162.0
+uvicorn[standard]==0.54.0
+
+# ---------- 数据校验 / 表单解析 ----------
+pydantic==2.14.1
+python-multipart==0.0.32
+
+# ---------- 大模型调用（DeepSeek 兼容 OpenAI 协议） ----------
+openai==3.41.0
+
+# ---------- PDF 导出（宋体中文） ----------
+reportlab==5.1.0

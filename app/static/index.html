@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="医学影像报告模板管理系统 (Claude Edition) —— 基于 Claude 极简人文设计语言与 DeepSeek AI 辅助生成影像诊断意见" />
+  <title>MedReport · 医学影像报告模板管理系统 (Claude 风格)</title>
+
+  <!-- Google Fonts: Claude 标志性人文衬线体 Newsreader + 现代无衬线 Inter + 专业等宽 JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ==========================================================================
+       Claude 标志性设计系统 (Anthropic Design Language & Color Tokens)
+       ========================================================================== */
+    :root {
+      /* Claude 经典暖白纸质底色与赤陶主调 */
+      --color-primary: #D97757;          /* Claude 经典赤陶暖橙 (Terracotta) */
+      --color-primary-hover: #C15F3D;
+      --color-primary-active: #A84A2A;
+      --color-primary-soft: rgba(217, 119, 87, 0.08);
+      --color-primary-border: rgba(217, 119, 87, 0.28);
+      --color-primary-glow: rgba(217, 119, 87, 0.22);
+
+      --color-success: #2E7D5B;          /* 尤加利鼠尾草绿 (AI 就绪 / 已保存) */
+      --color-success-hover: #246448;
+      --color-success-soft: rgba(46, 125, 91, 0.09);
+      --color-success-border: rgba(46, 125, 91, 0.25);
+
+      --color-warning: #C07D1E;          /* 暖金蜜蜡赭黄 (未配置 / 提示) */
+      --color-warning-hover: #A56914;
+      --color-warning-soft: rgba(192, 125, 30, 0.10);
+      --color-warning-border: rgba(192, 125, 30, 0.28);
+
+      --color-danger: #C04239;           /* 典雅朱砂红 (错误 / 未连接) */
+      --color-danger-hover: #A3332B;
+      --color-danger-soft: rgba(192, 66, 57, 0.09);
+      --color-danger-border: rgba(192, 66, 57, 0.28);
+
+      /* 默认日光模式：Claude 暖白纸质质感 */
+      --bg-app: #FAF9F5;
+      --bg-card: #FFFFFF;
+      --bg-card-secondary: #F6F3EC;
+      --bg-topbar: rgba(250, 249, 245, 0.88);
+      --bg-elevated: #EDE8DF;
+      --bg-input: #FFFFFF;
+      --bg-badge-neutral: #EFEBE3;
+
+      --border-color: #E5E0D8;
+      --border-color-light: #EDE8E1;
+      --border-focus: #D97757;
+
+      --text-main: #1F1E1D;              /* Claude 暖炭黑墨色 */
+      --text-secondary: #56534E;         /* 暖石灰副标题 */
+      --text-muted: #847E76;             /* 铅灰辅助文字 */
+      --text-dim: #ADA79B;
+
+      --shadow-sm: 0 1px 2px rgba(31, 30, 29, 0.04), 0 1px 1px rgba(31, 30, 29, 0.02);
+      --shadow-md: 0 3px 10px -1px rgba(31, 30, 29, 0.06), 0 1px 3px rgba(31, 30, 29, 0.03);
+      --shadow-lg: 0 14px 28px -4px rgba(31, 30, 29, 0.08), 0 4px 8px -2px rgba(31, 30, 29, 0.03);
+
+      --radius-sm: 7px;
+      --radius-md: 11px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --radius-full: 9999px;
+
+      --font-serif: "Newsreader", "Tiempos Headline", "Iowan Old Style", "Apple Garamond", "Baskerville", "Times New Roman", "Source Serif Pro", "Songti SC", "SimSun", serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+      --transition-fast: 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Claude 暮色深暖模式 (Claude Warm Espresso Dark Mode) */
+    [data-theme="dark"] {
+      --bg-app: #181716;
+      --bg-card: #242321;
+      --bg-card-secondary: #1D1C1B;
+      --bg-topbar: rgba(24, 23, 22, 0.88);
+      --bg-elevated: #31302D;
+      --bg-input: #1C1B1A;
+      --bg-badge-neutral: #2C2B28;
+
+      --border-color: #383633;
+      --border-color-light: #2D2C29;
+      --border-focus: #D97757;
+
+      --text-main: #F5F2EB;              /* 象牙暖白主文字 */
+      --text-secondary: #C4BFB5;         /* 暖沙浅灰 */
+      --text-muted: #948E84;             /* 暮色灰 */
+      --text-dim: #6E6961;
+
+      --color-primary-soft: rgba(217, 119, 87, 0.16);
+      --color-primary-border: rgba(217, 119, 87, 0.40);
+
+      --color-success: #43A074;
+      --color-success-soft: rgba(67, 160, 116, 0.15);
+      --color-success-border: rgba(67, 160, 116, 0.35);
+
+      --color-warning: #D99538;
+      --color-warning-soft: rgba(217, 149, 56, 0.16);
+      --color-warning-border: rgba(217, 149, 56, 0.35);
+
+      --color-danger: #D95349;
+      --color-danger-soft: rgba(217, 83, 73, 0.16);
+      --color-danger-border: rgba(217, 83, 73, 0.38);
+
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+      --shadow-md: 0 4px 10px -1px rgba(0, 0, 0, 0.45);
+      --shadow-lg: 0 16px 32px -4px rgba(0, 0, 0, 0.55);
+    }
+
+    /* ==========================================================================
+       基础重置与全局排版规范
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    [hidden] { display: none !important; }
+    html { scroll-behavior: smooth; font-size: 15px; }
+
+    body {
+      min-height: 100vh;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      background-color: var(--bg-app);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      letter-spacing: -0.005em;
+      transition: background-color var(--transition-normal), color var(--transition-normal);
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+
+    /* ==========================================================================
+       顶部半透导航栏 (Claude Translucent Header)
+       ========================================================================== */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 13px clamp(16px, 4vw, 40px);
+      background-color: var(--bg-topbar);
+      border-bottom: 1px solid var(--border-color-light);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: background-color var(--transition-normal);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Claude 标志性赤陶星芒品牌标识 */
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      flex: none;
+      border-radius: var(--radius-md);
+      color: #FFFFFF;
+      background: linear-gradient(145deg, #E28567 0%, #D97757 60%, #C15F3D 100%);
+      box-shadow: 0 2px 8px var(--color-primary-glow);
+      transition: transform var(--transition-fast);
+    }
+
+    .brand-mark:hover {
+      transform: rotate(15deg) scale(1.04);
+    }
+
+    .brand-mark svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .brand-text-wrap {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      white-space: nowrap;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .brand-pill {
+      display: inline-block;
+      background: var(--color-primary-soft);
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary-border);
+      font-size: 0.65rem;
+      padding: 0.08rem 0.45rem;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    /* Claude 风格柔和状态药丸徽章 */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.775rem;
+      font-weight: 500;
+      white-space: nowrap;
+      border: 1px solid transparent;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .badge::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .badge.idle {
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border-color: var(--border-color);
+    }
+
+    .badge.ok {
+      color: var(--color-success);
+      background: var(--color-success-soft);
+      border-color: var(--color-success-border);
+    }
+
+    .badge.warn {
+      color: var(--color-warning);
+      background: var(--color-warning-soft);
+      border-color: var(--color-warning-border);
+    }
+
+    .badge.danger {
+      color: var(--color-danger);
+      background: var(--color-danger-soft);
+      border-color: var(--color-danger-border);
+    }
+
+    .theme-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-card);
+      color: var(--text-secondary);
+      font-size: 0.775rem;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .theme-toggle-btn:hover {
+      background-color: var(--bg-elevated);
+      color: var(--text-main);
+      border-color: var(--border-focus);
+    }
+
+    .user-area {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-chip {
+      padding: 5px 12px;
+      border: 1px solid var(--color-primary-border);
+      border-radius: var(--radius-full);
+      background: var(--color-primary-soft);
+      color: var(--color-primary);
+      font-size: 0.775rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* ==========================================================================
+       主页面与卡片排版 (Claude Artifact Card Layout)
+       ========================================================================== */
+    .page {
+      width: min(1040px, 100%);
+      margin: 0 auto;
+      padding: clamp(20px, 3.5vw, 36px) clamp(16px, 3.5vw, 28px) 50px;
+      display: grid;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .card:hover {
+      border-color: rgba(217, 119, 87, 0.35);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* 登录卡片 (Doctor Access Card) */
+    .auth-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 20px 24px;
+      border-left: 4px solid var(--color-primary);
+      background: linear-gradient(to right, var(--color-primary-soft) 0%, var(--bg-card) 45%);
+    }
+
+    .auth-intro { min-width: 250px; }
+    .auth-intro h2 {
+      margin: 3px 0 4px;
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .auth-intro p { margin: 0; color: var(--text-muted); font-size: 0.825rem; }
+
+    .kicker {
+      display: block;
+      color: var(--color-primary);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .auth-form {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .auth-form input { width: 160px; }
+
+    .linklike {
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--color-primary);
+      font: inherit;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      cursor: pointer;
+    }
+    .linklike:hover { color: var(--color-primary-hover); }
+
+    /* ==========================================================================
+       表单控件与文本域 (Claude Natural Inputs)
+       ========================================================================== */
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 14px;
+      color: var(--text-main);
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+    }
+
+    input:hover, select:hover, textarea:hover {
+      border-color: var(--color-primary-border);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      background-color: var(--bg-card);
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--color-primary-soft);
+    }
+
+    textarea {
+      min-height: 128px;
+      line-height: 1.75;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    textarea::placeholder, input::placeholder {
+      color: var(--text-dim);
+    }
+
+    /* ==========================================================================
+       按钮系统 (Buttons - Claude Warm Tactile)
+       ========================================================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+      line-height: 1.25;
+      transition: all var(--transition-fast);
+    }
+
+    .btn:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn:active:not(:disabled) { transform: translateY(0); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* Claude 赤陶暖橙主按钮 */
+    .btn.primary {
+      color: #FFFFFF;
+      background: linear-gradient(135deg, #E28567 0%, #D97757 60%, #C15F3D 100%);
+      border-color: rgba(0, 0, 0, 0.04);
+      box-shadow: 0 2px 6px var(--color-primary-glow);
+    }
+    .btn.primary:hover:not(:disabled) {
+      box-shadow: 0 4px 14px var(--color-primary-glow);
+      background: linear-gradient(135deg, #EA8F72 0%, #E28567 60%, #D97757 100%);
+    }
+
+    .btn.secondary {
+      color: var(--color-primary);
+      background: var(--color-primary-soft);
+      border-color: var(--color-primary-border);
+    }
+    .btn.secondary:hover:not(:disabled) {
+      background: var(--color-primary);
+      color: #FFFFFF;
+    }
+
+    .btn.ghost {
+      color: var(--text-secondary);
+      background: var(--bg-card);
+      border-color: var(--border-color);
+    }
+    .btn.ghost:hover:not(:disabled) {
+      color: var(--text-main);
+      background-color: var(--bg-elevated);
+      border-color: var(--border-focus);
+    }
+
+    .btn.small {
+      padding: 5px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.775rem;
+    }
+
+    .btn.is-busy::after {
+      content: "";
+      width: 13px;
+      height: 13px;
+      flex: none;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+
+    .btn.is-busy .spark { display: none; }
+
+    /* ==========================================================================
+       报告卡片工作区 (Claude Artifact Report Workspace)
+       ========================================================================== */
+    .report-card {
+      padding: clamp(20px, 3.5vw, 34px);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .card-head h2 {
+      margin: 4px 0 0;
+      font-family: var(--font-serif);
+      font-size: 1.55rem;
+      font-weight: 600;
+      color: var(--text-main);
+      letter-spacing: -0.015em;
+    }
+
+    .head-tag {
+      padding: 4px 12px;
+      border: 1px solid var(--color-success-border);
+      border-radius: var(--radius-full);
+      color: var(--color-success);
+      background: var(--color-success-soft);
+      font-size: 0.775rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 14px 0 4px;
+      padding: 11px 16px;
+      border: 1px solid var(--color-warning-border);
+      border-radius: var(--radius-md);
+      color: var(--color-warning);
+      background: var(--color-warning-soft);
+      font-size: 0.825rem;
+      line-height: 1.5;
+    }
+    .banner strong { flex: none; font-weight: 700; }
+
+    .section {
+      padding: 24px 0;
+      border-top: 1px dashed var(--border-color);
+    }
+    .section:first-of-type {
+      padding-top: 16px;
+      border-top: 0;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    /* Claude 风格步进药丸 */
+    .step {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      flex: none;
+      border-radius: var(--radius-sm);
+      color: var(--color-primary);
+      background: var(--color-primary-soft);
+      border: 1px solid var(--color-primary-border);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .grid { display: grid; gap: 16px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+    .field > span {
+      color: var(--text-secondary);
+      font-size: 0.825rem;
+      font-weight: 600;
+    }
+
+    .inline { display: flex; gap: 8px; }
+    .inline select { flex: 1; min-width: 0; }
+
+    .field-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 6px;
+      color: var(--text-muted);
+      font-size: 0.775rem;
+    }
+    .count {
+      flex: none;
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Claude 风格 AI 生成主大按钮 */
+    .generate {
+      width: 100%;
+      margin-top: 16px;
+      padding: 13px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+    }
+    .spark { width: 19px; height: 19px; flex: none; }
+
+    /* ==========================================================================
+       底部操作栏 (Workspace Footer Actions)
+       ========================================================================== */
+    .actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .report-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      flex: none;
+      border-radius: 50%;
+      background: var(--text-dim);
+      box-shadow: 0 0 0 4px var(--border-color-light);
+      transition: background var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .status-dot.ok {
+      background: var(--color-success);
+      box-shadow: 0 0 0 4px var(--color-success-soft);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* ==========================================================================
+       使用指导与医学说明卡片 (Claude Notes & Guidelines)
+       ========================================================================== */
+    .tips {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .tip {
+      padding: 16px 18px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background-color: var(--bg-card);
+      color: var(--text-secondary);
+      font-size: 0.825rem;
+      line-height: 1.5;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .tip:hover {
+      border-color: var(--color-primary-border);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .tip strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text-main);
+      font-family: var(--font-serif);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .page-foot {
+      padding-top: 6px;
+      color: var(--text-dim);
+      font-size: 0.775rem;
+      text-align: center;
+      letter-spacing: 0.02em;
+    }
+
+    /* ==========================================================================
+       全局消息提示 (Claude Minimalist Toast)
+       ========================================================================== */
+    .toast-host {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: min(390px, calc(100vw - 40px));
+      pointer-events: none;
+    }
+
+    .toast {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-lg);
+      font-size: 0.85rem;
+      line-height: 1.5;
+      opacity: 0;
+      transform: translateY(12px) scale(0.97);
+      transition: opacity var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .toast.success {
+      border-color: var(--color-success-border);
+      background: var(--color-success-soft);
+      color: var(--color-success);
+    }
+
+    .toast.error {
+      border-color: var(--color-danger-border);
+      background: var(--color-danger-soft);
+      color: var(--color-danger);
+    }
+
+    .toast.info {
+      border-color: var(--color-primary-border);
+      background: var(--color-primary-soft);
+      color: var(--color-primary);
+    }
+
+    .toast-icon {
+      display: grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      flex: none;
+      margin-top: 1px;
+      border-radius: 50%;
+      background: currentColor;
+      color: #FFFFFF;
+      font-size: 0.725rem;
+      font-weight: 700;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ==========================================================================
+       响应式适配
+       ========================================================================== */
+    @media (max-width: 880px) {
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .tips { grid-template-columns: 1fr; }
+      .auth-card { flex-direction: column; align-items: stretch; gap: 16px; }
+      .auth-form input { flex: 1; width: auto; min-width: 140px; }
+    }
+
+    @media (max-width: 640px) {
+      .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .top-actions { width: 100%; justify-content: space-between; }
+      .grid-2, .grid-4 { grid-template-columns: 1fr; }
+      .card-head { flex-direction: column; }
+      .brand h1 { font-size: 1rem; white-space: normal; }
+      .brand p { display: none; }
+      .action-buttons { width: 100%; }
+      .action-buttons .btn { flex: 1; }
+      .actions { align-items: flex-start; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+      }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶栏：Claude 半透微磨砂导航栏 -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true" title="Claude Edition">
+        <!-- Claude 标志性赤陶星芒/医药守护十字标 -->
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2a1.25 1.25 0 0 1 1.25 1.25v6.17l4.36-4.36a1.25 1.25 0 1 1 1.77 1.77l-4.36 4.36h6.17a1.25 1.25 0 1 1 0 2.5h-6.17l4.36 4.36a1.25 1.25 0 1 1-1.77 1.77l-4.36-4.36v6.17a1.25 1.25 0 1 1-2.5 0v-6.17l-4.36 4.36a1.25 1.25 0 0 1-1.77-1.77l4.36-4.36H3.25a1.25 1.25 0 1 1 0-2.5h6.17L5.06 6.83a1.25 1.25 0 0 1 1.77-1.77l4.36 4.36V3.25A1.25 1.25 0 0 1 12 2z"/>
+        </svg>
+      </div>
+      <div class="brand-text-wrap">
+        <h1>
+          MedReport · 影像报告工作台
+          <span class="brand-pill">Claude</span>
+        </h1>
+        <p>Medical Imaging AI Report Management System</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <!-- 服务状态药丸徽章 -->
+      <span class="badge idle" id="llmBadge">检测服务中…</span>
+
+      <!-- Claude 主题切换按钮 -->
+      <button type="button" class="theme-toggle-btn" id="themeToggleBtn" title="切换 Claude 暖白/暮色模式">
+        <span id="themeToggleIcon">☀️</span>
+        <span id="themeToggleText">暖白</span>
+      </button>
+
+      <!-- 用户区域 -->
+      <div class="user-area" id="userArea"></div>
+    </div>
+  </header>
+
+  <main class="page">
+    <!-- 医生登录与身份验证卡片 -->
+    <section class="card auth-card" id="authCard" hidden>
+      <div class="auth-intro">
+        <span class="kicker">DOCTOR ACCESS</span>
+        <h2>医生登录后保存报告与导出 PDF</h2>
+        <p>演示账号：<button type="button" class="linklike" id="fillDemoBtn">admin / 123456</button>，点击自动填入。</p>
+      </div>
+      <form class="auth-form" id="authForm">
+        <input id="authUsername" name="username" type="text" placeholder="用户名" maxlength="32" autocomplete="username" aria-label="用户名" />
+        <input id="authPassword" name="password" type="password" placeholder="密码" maxlength="64" autocomplete="current-password" aria-label="密码" />
+        <button class="btn primary" type="submit" id="loginBtn">登录</button>
+        <button class="btn ghost" type="button" id="registerBtn">注册</button>
+      </form>
+    </section>
+
+    <!-- 影像报告生成核心 Artifact 卡片 -->
+    <section class="card report-card">
+      <div class="card-head">
+        <div>
+          <span class="kicker">REPORT WORKSPACE</span>
+          <h2>影像报告生成与核签</h2>
+        </div>
+        <span class="head-tag">Claude AI 辅助 · 执业医师核签</span>
+      </div>
+
+      <!-- LLM 状态提醒横幅 -->
+      <div class="banner" id="llmNotice" hidden>
+        <strong>提示：</strong>
+        <span id="llmNoticeText"></span>
+      </div>
+
+      <form id="reportForm" novalidate>
+        <!-- 步骤 01：检查信息 -->
+        <div class="section">
+          <div class="section-title"><span class="step">01</span>检查分类与模板库</div>
+          <div class="grid grid-2">
+            <label class="field" for="category">
+              <span>检查分类</span>
+              <select id="category">
+                <option value="">加载中…</option>
+              </select>
+            </label>
+            <div class="field">
+              <span>报告模板（可选）</span>
+              <div class="inline">
+                <select id="templateSelect" aria-label="报告模板">
+                  <option value="">不使用模板</option>
+                </select>
+                <button class="btn ghost" type="button" id="applyTemplateBtn">载入模板</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 步骤 02：影像所见 -->
+        <div class="section">
+          <div class="section-title"><span class="step">02</span>影像所见描述 (Findings)</div>
+          <textarea id="findings" maxlength="20000" rows="7"
+            placeholder="例如：双侧大脑半球对称，脑实质未见明显异常密度影，脑室系统无扩大，中线结构居中。"></textarea>
+          <div class="field-foot">
+            <span>支持多行临床专业描述，AI 将基于此生成客观精准的诊断意见。</span>
+            <span class="count" id="findingsCount">0 / 20000</span>
+          </div>
+          <button class="btn primary generate" type="button" id="generateBtn">
+            <!-- Claude 灵感星芒图标 -->
+            <svg class="spark" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+              <path d="M12 2a1.25 1.25 0 0 1 1.25 1.25v6.17l4.36-4.36a1.25 1.25 0 1 1 1.77 1.77l-4.36 4.36h6.17a1.25 1.25 0 1 1 0 2.5h-6.17l4.36 4.36a1.25 1.25 0 1 1-1.77 1.77l-4.36-4.36v6.17a1.25 1.25 0 1 1-2.5 0v-6.17l-4.36 4.36a1.25 1.25 0 0 1-1.77-1.77l4.36-4.36H3.25a1.25 1.25 0 1 1 0-2.5h6.17L5.06 6.83a1.25 1.25 0 0 1 1.77-1.77l4.36 4.36V3.25A1.25 1.25 0 0 1 12 2z"/>
+            </svg>
+            <span class="label">AI 智能生成诊断意见</span>
+          </button>
+        </div>
+
+        <!-- 步骤 03：诊断意见 -->
+        <div class="section">
+          <div class="section-title"><span class="step">03</span>诊断意见 (Conclusion)</div>
+          <textarea id="conclusion" maxlength="20000" rows="7"
+            placeholder="AI 智能生成后将自动填入此处，医生可根据临床实际直接在线修订与完善。"></textarea>
+          <div class="field-foot">
+            <span>AI 生成结论仅作为临床辅助参考，出具报告前请经治医生严格复核签字。</span>
+            <span class="count" id="conclusionCount">0 / 20000</span>
+          </div>
+        </div>
+
+        <!-- 步骤 04：患者信息 -->
+        <div class="section">
+          <div class="section-title"><span class="step">04</span>患者登记与病案信息</div>
+          <div class="grid grid-4">
+            <label class="field" for="patientName">
+              <span>患者姓名</span>
+              <input id="patientName" type="text" maxlength="50" placeholder="如：张三" autocomplete="off" />
+            </label>
+            <label class="field" for="patientGender">
+              <span>性别</span>
+              <select id="patientGender">
+                <option value="未知" selected>未知</option>
+                <option value="男">男</option>
+                <option value="女">女</option>
+                <option value="其他">其他</option>
+              </select>
+            </label>
+            <label class="field" for="patientAge">
+              <span>年龄</span>
+              <input id="patientAge" type="number" min="0" max="150" step="1" placeholder="如：58" />
+            </label>
+            <label class="field" for="patientRecordNo">
+              <span>病历号 / 检查号</span>
+              <input id="patientRecordNo" type="text" maxlength="50" placeholder="如：CT202610220018" autocomplete="off" />
+            </label>
+          </div>
+        </div>
+
+        <!-- 底部动作栏 -->
+        <div class="actions">
+          <div class="report-status">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="reportStatus">尚未保存报告</span>
+          </div>
+          <div class="action-buttons">
+            <button class="btn ghost" type="button" id="resetBtn">清空表单</button>
+            <button class="btn secondary" type="button" id="saveBtn">保存报告</button>
+            <button class="btn primary" type="button" id="pdfBtn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="12" y1="18" x2="12" y2="12"></line>
+                <line x1="9" y1="15" x2="15" y2="15"></line>
+              </svg>
+              生成中文 PDF
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- Claude 文档风格注意事项 -->
+    <section class="tips">
+      <div class="tip">
+        <strong>AI 辅助，需医生复核</strong>
+        生成内容基于影像所见推导，仅供执业医师参考，不能替代最终医学签名。
+      </div>
+      <div class="tip">
+        <strong>患者隐私严格保护</strong>
+        患者姓名、病案号仅加密存储于医院本地数据库，绝不向大模型接口发送敏感隐私。
+      </div>
+      <div class="tip">
+        <strong>专业中文 PDF 排版</strong>
+        内置严密医学排版与宋体支持，完整导出影像所见、AI 复核结论与医师签名栏。
+      </div>
+    </section>
+
+    <footer class="page-foot">
+      MedReport 医学影像报告模板管理系统 · Claude Edition · FastAPI + SQLite + DeepSeek + ReportLab
+    </footer>
+  </main>
+
+  <!-- 全局轻量浮动消息宿主 -->
+  <div class="toast-host" id="toastHost" aria-live="polite" aria-atomic="false"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const MAX_TEXT = 20000;
+      const STORAGE_KEY = "medicalReportSystem.user";
+      const THEME_STORAGE_KEY = "medicalReportSystem.theme";
+      const $ = (id) => document.getElementById(id);
+
+      const els = {
+        llmBadge: $("llmBadge"),
+        themeToggleBtn: $("themeToggleBtn"),
+        themeToggleIcon: $("themeToggleIcon"),
+        themeToggleText: $("themeToggleText"),
+        userArea: $("userArea"),
+        authCard: $("authCard"),
+        authForm: $("authForm"),
+        authUsername: $("authUsername"),
+        authPassword: $("authPassword"),
+        loginBtn: $("loginBtn"),
+        registerBtn: $("registerBtn"),
+        fillDemoBtn: $("fillDemoBtn"),
+        llmNotice: $("llmNotice"),
+        llmNoticeText: $("llmNoticeText"),
+        reportForm: $("reportForm"),
+        category: $("category"),
+        templateSelect: $("templateSelect"),
+        applyTemplateBtn: $("applyTemplateBtn"),
+        findings: $("findings"),
+        conclusion: $("conclusion"),
+        findingsCount: $("findingsCount"),
+        conclusionCount: $("conclusionCount"),
+        generateBtn: $("generateBtn"),
+        patientName: $("patientName"),
+        patientGender: $("patientGender"),
+        patientAge: $("patientAge"),
+        patientRecordNo: $("patientRecordNo"),
+        saveBtn: $("saveBtn"),
+        pdfBtn: $("pdfBtn"),
+        resetBtn: $("resetBtn"),
+        reportStatus: $("reportStatus"),
+        statusDot: $("statusDot"),
+        toastHost: $("toastHost"),
+      };
+
+      const state = {
+        user: null,
+        categories: [],
+        templates: [],
+        templateId: null,
+        currentReportId: null,
+        dirty: false,
+        llmConfigured: null,
+        theme: "light",
+      };
+
+      /* ---------------- Claude 主题切换控制 ---------------- */
+      function initTheme() {
+        try {
+          const saved = localStorage.getItem(THEME_STORAGE_KEY);
+          if (saved === "dark" || saved === "light") {
+            state.theme = saved;
+          }
+        } catch (e) {
+          console.warn("Theme storage read failed", e);
+        }
+        applyTheme(state.theme);
+
+        if (els.themeToggleBtn) {
+          els.themeToggleBtn.addEventListener("click", () => {
+            const next = state.theme === "dark" ? "light" : "dark";
+            state.theme = next;
+            try {
+              localStorage.setItem(THEME_STORAGE_KEY, next);
+            } catch (e) {}
+            applyTheme(next);
+            toast(next === "dark" ? "🌙 已切换至 Claude 暮色模式" : "☀️ 已切换至 Claude 暖白日光模式", "info");
+          });
+        }
+      }
+
+      function applyTheme(theme) {
+        document.documentElement.setAttribute("data-theme", theme);
+        if (els.themeToggleIcon && els.themeToggleText) {
+          els.themeToggleIcon.textContent = theme === "dark" ? "🌙" : "☀️";
+          els.themeToggleText.textContent = theme === "dark" ? "暮色" : "暖白";
+        }
+      }
+
+      /* ---------------- 基础工具 ---------------- */
+      function formatReportNo(id) {
+        return "R" + String(id).padStart(6, "0");
+      }
+
+      function toast(message, type = "info", duration = 3800) {
+        const box = document.createElement("div");
+        box.className = "toast " + type;
+
+        const icon = document.createElement("span");
+        icon.className = "toast-icon";
+        icon.textContent = type === "success" ? "✓" : type === "error" ? "!" : "i";
+
+        const text = document.createElement("span");
+        text.textContent = message;
+
+        box.append(icon, text);
+        els.toastHost.appendChild(box);
+        requestAnimationFrame(() => box.classList.add("show"));
+
+        window.setTimeout(() => {
+          box.classList.remove("show");
+          window.setTimeout(() => box.remove(), 240);
+        }, duration);
+      }
+
+      async function api(path, options = {}) {
+        let response;
+        try {
+          const headers = { ...(options.headers || {}) };
+          if (options.body) headers["Content-Type"] = "application/json";
+          response = await fetch(path, { ...options, headers });
+        } catch (error) {
+          throw new Error("无法连接后端服务，请确认已通过 http://127.0.0.1:8000/ 打开本页，且 uvicorn 正在运行。");
+        }
+
+        const raw = await response.text();
+        let data = null;
+        if (raw) {
+          try {
+            data = JSON.parse(raw);
+          } catch (error) {
+            data = raw;
+          }
+        }
+
+        if (!response.ok) {
+          throw new Error(extractError(data, response.status));
+        }
+        return data;
+      }
+
+      function extractError(data, status) {
+        if (!data) return "请求失败（HTTP " + status + "）";
+        if (typeof data === "string") return data;
+        if (typeof data.detail === "string") return data.detail;
+        if (Array.isArray(data.detail)) {
+          return data.detail.map((item) => (item && item.msg) || JSON.stringify(item)).join("；");
+        }
+        return "请求失败（HTTP " + status + "）";
+      }
+
+      function setBusy(button, busy, busyText) {
+        const label = button.querySelector(".label") || button;
+        if (busy) {
+          button.dataset.previousText = label.textContent;
+          button.disabled = true;
+          button.classList.add("is-busy");
+          if (busyText) label.textContent = busyText;
+        } else {
+          button.disabled = false;
+          button.classList.remove("is-busy");
+          if (button.dataset.previousText) {
+            label.textContent = button.dataset.previousText;
+            delete button.dataset.previousText;
+          }
+        }
+      }
+
+      function showAuth(message) {
+        els.authCard.hidden = false;
+        if (message) toast(message, "error", 5000);
+        els.authCard.scrollIntoView({ behavior: "smooth", block: "center" });
+        window.setTimeout(() => els.authUsername.focus({ preventScroll: true }), 320);
+      }
+
+      /* ---------------- 登录状态 ---------------- */
+      function readStoredUser() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          if (parsed && Number.isInteger(parsed.id) && typeof parsed.username === "string") {
+            return parsed;
+          }
+        } catch (error) {
+          console.warn("读取本地登录状态失败", error);
+        }
+        return null;
+      }
+
+      function persistUser(user) {
+        state.user = user;
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+        } catch (error) {
+          console.warn("保存本地登录状态失败", error);
+        }
+        renderUser();
+      }
+
+      function clearUser() {
+        state.user = null;
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (error) {
+          console.warn("清除本地登录状态失败", error);
+        }
+        renderUser();
+      }
+
+      function renderUser() {
+        els.userArea.replaceChildren();
+
+        if (state.user) {
+          els.authCard.hidden = true;
+
+          const chip = document.createElement("span");
+          chip.className = "user-chip";
+          chip.textContent = "经治医师 · " + state.user.username;
+
+          const logout = document.createElement("button");
+          logout.type = "button";
+          logout.className = "btn ghost small";
+          logout.textContent = "退出登录";
+          logout.addEventListener("click", () => {
+            clearUser();
+            toast("已安全退出登录", "info");
+          });
+
+          els.userArea.append(chip, logout);
+          return;
+        }
+
+        els.authCard.hidden = false;
+        const open = document.createElement("button");
+        open.type = "button";
+        open.className = "btn ghost small";
+        open.textContent = "医师登录 / 注册";
+        open.addEventListener("click", () => {
+          els.authCard.scrollIntoView({ behavior: "smooth", block: "center" });
+          els.authUsername.focus({ preventScroll: true });
+        });
+        els.userArea.append(open);
+      }
+
+      /* ---------------- 登录 / 注册 ---------------- */
+      els.authForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        await login();
+      });
+
+      async function login() {
+        const username = els.authUsername.value.trim();
+        const password = els.authPassword.value;
+        if (!username || !password) {
+          toast("请输入用户名和密码", "error");
+          return;
+        }
+
+        setBusy(els.loginBtn, true, "登录中…");
+        try {
+          const data = await api("/login", {
+            method: "POST",
+            body: JSON.stringify({ username, password }),
+          });
+          els.authForm.reset();
+          persistUser(data.user);
+          toast("欢迎回来，" + data.user.username + " 医生", "success");
+        } catch (error) {
+          toast(error.message, "error", 6000);
+        } finally {
+          setBusy(els.loginBtn, false);
+        }
+      }
+
+      els.registerBtn.addEventListener("click", async () => {
+        const username = els.authUsername.value.trim();
+        const password = els.authPassword.value;
+
+        if (username.length < 3) {
+          toast("用户名至少 3 个字符", "error");
+          els.authUsername.focus();
+          return;
+        }
+        if (password.length < 6) {
+          toast("密码至少 6 个字符", "error");
+          els.authPassword.focus();
+          return;
+        }
+
+        setBusy(els.registerBtn, true, "注册中…");
+        try {
+          await api("/register", {
+            method: "POST",
+            body: JSON.stringify({ username, password }),
+          });
+          const data = await api("/login", {
+            method: "POST",
+            body: JSON.stringify({ username, password }),
+          });
+          els.authForm.reset();
+          persistUser(data.user);
+          toast("注册成功，已自动登录", "success");
+        } catch (error) {
+          toast(error.message, "error", 6000);
+        } finally {
+          setBusy(els.registerBtn, false);
+        }
+      });
+
+      els.fillDemoBtn.addEventListener("click", () => {
+        els.authUsername.value = "admin";
+        els.authPassword.value = "123456";
+        els.authPassword.focus();
+      });
+
+      /* ---------------- 服务状态 ---------------- */
+      function renderHealth() {
+        if (state.llmConfigured === true) {
+          els.llmBadge.className = "badge ok";
+          els.llmBadge.textContent = "DeepSeek AI 已就绪";
+          els.llmNotice.hidden = true;
+          return;
+        }
+
+        if (state.llmConfigured === false) {
+          els.llmBadge.className = "badge warn";
+          els.llmBadge.textContent = "AI 密钥未配置";
+          els.llmNotice.hidden = false;
+          els.llmNoticeText.textContent = "服务端未配置 DEEPSEEK_API_KEY，AI 生成将返回 503。设置环境变量并重启服务后刷新本页。";
+          return;
+        }
+
+        els.llmBadge.className = "badge danger";
+        els.llmBadge.textContent = "服务未连接";
+        els.llmNotice.hidden = false;
+        els.llmNoticeText.textContent = "无法连接后端服务，请确认已通过 http://127.0.0.1:8000/ 打开本页，且 uvicorn 正在运行。";
+      }
+
+      async function loadHealth() {
+        try {
+          const data = await api("/health");
+          state.llmConfigured = Boolean(data.llm_configured);
+        } catch (error) {
+          state.llmConfigured = null;
+          console.warn(error);
+        }
+        renderHealth();
+      }
+
+      /* ---------------- 分类 / 模板 ---------------- */
+      async function loadCategories() {
+        try {
+          const items = await api("/prompt_configs");
+          state.categories = Array.isArray(items) ? items : [];
+
+          const options = [new Option("请选择检查分类", "")];
+          state.categories.forEach((item) => options.push(new Option(item.category, item.category)));
+          els.category.replaceChildren(...options);
+
+          if (state.categories.length > 0) {
+            els.category.value = state.categories[0].category;
+          }
+        } catch (error) {
+          els.category.replaceChildren(new Option("分类加载失败", ""));
+          toast("检查分类加载失败：" + error.message, "error", 6000);
+        }
+      }
+
+      async function loadTemplates() {
+        try {
+          const items = await api("/templates?limit=200");
+          state.templates = Array.isArray(items) ? items : [];
+
+          const options = [new Option("不使用模板", "")];
+          state.templates.forEach((item) => {
+            options.push(new Option(item.title + "（" + item.category + "）", String(item.id)));
+          });
+          els.templateSelect.replaceChildren(...options);
+        } catch (error) {
+          console.warn("模板加载失败", error);
+          els.templateSelect.replaceChildren(new Option("模板加载失败", ""));
+        }
+      }
+
+      els.applyTemplateBtn.addEventListener("click", () => {
+        const id = Number(els.templateSelect.value);
+        if (!id) {
+          toast("请先选择一个模板", "info");
+          return;
+        }
+
+        const template = state.templates.find((item) => item.id === id);
+        if (!template) {
+          toast("模板数据已失效，请刷新页面", "error");
+          return;
+        }
+
+        if (
+          (els.findings.value.trim() || els.conclusion.value.trim()) &&
+          !window.confirm("载入模板会覆盖当前影像所见和诊断意见，是否继续？")
+        ) {
+          return;
+        }
+
+        els.findings.value = template.findings || "";
+        els.conclusion.value = template.conclusion || "";
+        if (Array.from(els.category.options).some((option) => option.value === template.category)) {
+          els.category.value = template.category;
+        }
+
+        state.templateId = template.id;
+        markDirty();
+        updateCounts();
+        toast("模板已载入工作区", "success");
+      });
+
+      /* ---------------- 计数 / 状态 ---------------- */
+      function updateCounts() {
+        els.findingsCount.textContent = els.findings.value.length + " / " + MAX_TEXT;
+        els.conclusionCount.textContent = els.conclusion.value.length + " / " + MAX_TEXT;
+      }
+
+      function updateReportStatus() {
+        if (state.currentReportId !== null) {
+          els.reportStatus.textContent = "已保存：" + formatReportNo(state.currentReportId);
+          els.statusDot.classList.add("ok");
+          return;
+        }
+
+        els.reportStatus.textContent = state.dirty ? "内容有修改，尚未保存" : "尚未保存报告";
+        els.statusDot.classList.remove("ok");
+      }
+
+      function markDirty() {
+        state.dirty = true;
+        state.currentReportId = null;
+        updateReportStatus();
+      }
+
+      els.templateSelect.addEventListener("change", () => {
+        const selected = Number(els.templateSelect.value) || null;
+        if (selected !== state.templateId) {
+          state.templateId = null;
+        }
+      });
+
+      els.reportForm.addEventListener("input", (event) => {
+        if (event.target === els.findings || event.target === els.conclusion) {
+          updateCounts();
+        }
+        if (event.target.matches("input, textarea, select")) {
+          markDirty();
+        }
+      });
+
+      els.reportForm.addEventListener("change", (event) => {
+        if (event.target.matches("select")) {
+          markDirty();
+        }
+      });
+
+      els.reportForm.addEventListener("submit", (event) => event.preventDefault());
+
+      /* ---------------- AI 生成 ---------------- */
+      els.generateBtn.addEventListener("click", async () => {
+        const category = els.category.value;
+        const findings = els.findings.value.trim();
+
+        if (!category) {
+          toast("请先选择检查分类", "error");
+          els.category.focus();
+          return;
+        }
+        if (!findings) {
+          toast("请先填写影像所见", "error");
+          els.findings.focus();
+          return;
+        }
+
+        setBusy(els.generateBtn, true, "Claude AI 思考生成中…");
+        try {
+          const data = await api("/generate_conclusion", {
+            method: "POST",
+            body: JSON.stringify({ category, findings }),
+          });
+
+          els.conclusion.value = data.conclusion || "";
+          updateCounts();
+          markDirty();
+          toast("诊断意见已由 AI 生成，请经治医生核对后保存", "success");
+          els.conclusion.focus();
+        } catch (error) {
+          toast(error.message, "error", 7000);
+        } finally {
+          setBusy(els.generateBtn, false);
+        }
+      });
+
+      /* ---------------- 保存报告 ---------------- */
+      function collectReport() {
+        const ageText = els.patientAge.value.trim();
+        return {
+          template_id: state.templateId,
+          patient_name: els.patientName.value.trim(),
+          patient_gender: els.patientGender.value || "未知",
+          patient_age: ageText === "" ? null : Number(ageText),
+          patient_record_no: els.patientRecordNo.value.trim(),
+          findings: els.findings.value.trim(),
+          conclusion: els.conclusion.value.trim(),
+          doctor_id: state.user ? state.user.id : null,
+        };
+      }
+
+      function validateReport(payload) {
+        if (!payload.patient_name) return "请填写患者姓名";
+        if (!payload.findings) return "请填写影像所见";
+        if (!payload.conclusion) return "请填写诊断意见";
+        if (payload.patient_age !== null) {
+          if (
+            !Number.isInteger(payload.patient_age) ||
+            payload.patient_age < 0 ||
+            payload.patient_age > 150
+          ) {
+            return "年龄需为 0~150 之间的整数";
+          }
+        }
+        return "";
+      }
+
+      async function saveReport({ button = els.saveBtn, silent = false } = {}) {
+        if (!state.user) {
+          showAuth("请先登录医师账号后再保存报告");
+          return null;
+        }
+
+        const payload = collectReport();
+        const error = validateReport(payload);
+        if (error) {
+          toast(error, "error");
+          return null;
+        }
+
+        setBusy(button, true, "保存中…");
+        try {
+          const report = await api("/reports", {
+            method: "POST",
+            body: JSON.stringify(payload),
+          });
+
+          state.currentReportId = report.id;
+          state.dirty = false;
+          updateReportStatus();
+
+          if (!silent) {
+            toast("报告已成功保存入库（编号：" + formatReportNo(report.id) + "）", "success");
+          }
+          return report;
+        } catch (error) {
+          toast(error.message, "error", 7000);
+          return null;
+        } finally {
+          setBusy(button, false);
+        }
+      }
+
+      els.saveBtn.addEventListener("click", () => saveReport());
+
+      /* ---------------- 导出 PDF ---------------- */
+      async function exportPdf() {
+        if (!state.user) {
+          showAuth("请先登录医师账号后再导出 PDF 报告");
+          return;
+        }
+
+        if (state.currentReportId !== null) {
+          window.open("/reports/" + state.currentReportId + "/pdf", "_blank");
+          return;
+        }
+
+        const preview = window.open("about:blank", "_blank");
+        const report = await saveReport({ button: els.pdfBtn, silent: true });
+
+        if (!report) {
+          if (preview) preview.close();
+          return;
+        }
+
+        const url = "/reports/" + report.id + "/pdf";
+        if (preview) {
+          preview.location.href = url;
+        } else {
+          window.open(url, "_blank");
+        }
+        toast("中文排版 PDF 报告已生成，正在新窗口打开", "success");
+      }
+
+      els.pdfBtn.addEventListener("click", exportPdf);
+
+      /* ---------------- 清空 ---------------- */
+      els.resetBtn.addEventListener("click", () => {
+        if (!window.confirm("确定清空当前工作区所有表单内容？")) return;
+
+        els.reportForm.reset();
+        els.patientGender.value = "未知";
+        els.templateSelect.value = "";
+        state.templateId = null;
+        state.currentReportId = null;
+        state.dirty = false;
+
+        if (state.categories.length > 0) {
+          els.category.value = state.categories[0].category;
+        }
+
+        updateCounts();
+        updateReportStatus();
+        toast("表单已全部清空", "info");
+      });
+
+      /* ---------------- 初始化 ---------------- */
+      async function bootstrap() {
+        initTheme();
+        state.user = readStoredUser();
+        renderUser();
+        updateCounts();
+        updateReportStatus();
+
+        await Promise.allSettled([loadHealth(), loadCategories(), loadTemplates()]);
+      }
+
+      bootstrap();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+data/
+.env
+.git/
+__pycache__/
+*.py[cod]
+*.bak
+*.db
+*.sqlite
+*.sqlite3
+backup/
+*.zip
+.DS_Store
